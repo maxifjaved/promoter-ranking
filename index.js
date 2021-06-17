@@ -38,13 +38,17 @@ const main = async () => {
 
       let totalPromoted = {};
       let playlistTrackDuration = {};
+      let playlistFollowers = {};
 
       if (promotersUrlList.length) {
         for (const promoterUrl of promotersUrlList) {
           const pId = getIdFromLink(promoterUrl);
           totalPromoted[pId] = 0;
           playlistTrackDuration[pId] = 0;
+
           const playlist = await getPlaylistData(pId);
+          playlistFollowers[pId] = playlist.followers.total;
+
           for (const item of playlist?.tracks?.items) {
             if (
               mainstreamTracks[item.track.uri] &&
@@ -66,8 +70,31 @@ const main = async () => {
         }
       }
 
-      console.log("🚀 totalPromoted", totalPromoted);
-      console.log("🚀 ~playlistTrackDuration", playlistTrackDuration);
+      const promoterScore = {};
+
+      for (const item in totalPromoted) {
+        const percentage =
+          playlistTrackDuration[item] != 0
+            ? totalPromoted[item] / playlistTrackDuration[item]
+            : 0;
+        promoterScore[item] = percentage * playlistFollowers[item];
+      }
+
+      const promoterRanking = Object.entries(promoterScore)
+        .sort(([, a], [, b]) => b - a)
+        .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+
+      const promoterIds = Object.keys(promoterRanking);
+      promoterIds.length > 3
+        ? (promoterIds.length = 3)
+        : (promoterIds.length = promoterIds.length);
+      for (let i = 0; i < promoterIds.length; i++) {
+        console.log(
+          `Promoter on rank ${i + 1} is  "https://open.spotify.com/playlist/${
+            promoterIds[i]
+          }`
+        );
+      }
     });
   } catch (error) {
     console.log("🚀 ~ file: index.js ~ line 34 ~ main ~ error", error);
