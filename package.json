@@ -1,0 +1,14 @@
+{
+  "name": "daizic-assessment-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "inquirer": "^8.1.1",
+    "nodemon": "^2.0.7",
+    "spotify-web-api-node": "^5.0.2"
+  },
+  "scripts": {
+    "start": "nodemon"
+  }
+}
